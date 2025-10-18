@@ -1,20 +1,22 @@
 [package]
-name = "eytzinger"
-description = 'This crate implements the "eytzinger" (aka BFS) array layout.'
+name = "eytzinger-interpolation"
+description = "Eytzinger array layout with interpolative search support"
 license = "MIT"
-documentation = "https://docs.rs/eytzinger"
-repository = "https://github.com/main--/rust-eytzinger"
-version = "1.1.2"
-authors = ["main() <main@ehvag.de>"]
+documentation = "https://docs.rs/eytzinger-interpolation"
+repository = "https://github.com/anchpop/rust-eytzinger"
+version = "1.0.0"
+authors = ["main() <main@ehvag.de>", "Andre Popovitch <andre@popovit.ch>"]
+edition = "2021"
 
 [profile.release]
 debug = true
 
 [dependencies.nonmax]
-version = "0.5.0"
+version = "0.5"
 optional = true
+
 [dependencies.nohash-hasher]
-version = "0.2.0"
+version = "0.2"
 optional = true
 
 [dev-dependencies]
@@ -25,4 +27,3 @@ default = ["heap-permutator", "heap-permutator-sparse"]
 heap-permutator = ["nonmax"]
 heap-permutator-sparse = ["nohash-hasher"]
 branchless = []
-

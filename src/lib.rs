@@ -6,7 +6,7 @@
 //! # Usage
 //!
 //! ```
-//! use eytzinger::SliceExt;
+//! use eytzinger_interpolation::SliceExt;
 //! let mut data = [0, 1, 2, 3, 4, 5, 6];
 //! data.eytzingerize(&mut eytzinger::permutation::InplacePermutator);
 //! assert_eq!(data, [3, 1, 5, 0, 2, 4, 6]);
@@ -360,7 +360,7 @@ pub trait SliceExt<T> {
     /// # Example
     ///
     /// ```rust
-    /// use eytzinger::SliceExt;
+    /// use eytzinger_interpolation::SliceExt;
     /// let mut data = [0, 1, 2, 3, 4, 5, 6];
     /// data.eytzingerize(&mut eytzinger::permutation::InplacePermutator);
     /// assert_eq!(data, [3, 1, 5, 0, 2, 4, 6]);
@@ -375,7 +375,7 @@ pub trait SliceExt<T> {
     /// # Example
     ///
     /// ```rust
-    /// use eytzinger::SliceExt;
+    /// use eytzinger_interpolation::SliceExt;
     /// let s = [3, 1, 5, 0, 2, 4, 6];
     /// assert_eq!(s.eytzinger_search(&5), Some(2));
     /// assert_eq!(s.eytzinger_search(&6), Some(6));
@@ -398,7 +398,7 @@ pub trait SliceExt<T> {
     /// # Examples
     ///
     /// ```rust
-    /// use eytzinger::SliceExt;
+    /// use eytzinger_interpolation::SliceExt;
     /// let s = [3, 1, 5, 0, 2, 4, 6];
     /// assert_eq!(s.eytzinger_search_by(|x| x.cmp(&5)), Some(2));
     /// assert_eq!(s.eytzinger_search_by(|x| x.cmp(&6)), Some(6));
@@ -421,7 +421,7 @@ pub trait SliceExt<T> {
     /// # Examples
     ///
     /// ```rust
-    /// use eytzinger::SliceExt;
+    /// use eytzinger_interpolation::SliceExt;
     /// let s = [(3, 'd'), (1, 'b'), (5, 'f'), (0, 'a'), (2, 'c'), (4, 'e'), (6, 'g')];
     /// assert_eq!(s.eytzinger_search_by_key(&'f', |&(_, b)| b), Some(2));
     /// assert_eq!(s.eytzinger_search_by_key(&'g', |&(_, b)| b), Some(6));
@@ -448,7 +448,7 @@ pub trait SliceExt<T> {
     /// # Examples
     ///
     /// ```rust
-    /// use eytzinger::SliceExt;
+    /// use eytzinger_interpolation::SliceExt;
     /// let s = [3, 1, 5, 0, 2, 4, 6];
     /// assert_eq!(s.eytzinger_interpolative_search_by(|x| x.cmp(&3)),  (Some(0_usize), Some(5_usize)));
     /// assert_eq!(s.eytzinger_interpolative_search_by(|x| x.cmp(&5)),  (Some(2_usize), Some(6_usize)));
@@ -471,7 +471,7 @@ pub trait SliceExt<T> {
     /// # Examples
     ///
     /// ```rust
-    /// use eytzinger::SliceExt;
+    /// use eytzinger_interpolation::SliceExt;
     /// let s = [3, 1, 5, 0, 2, 4, 6];
     /// assert_eq!(s.eytzinger_interpolative_search(&3),  (Some(0_usize), Some(5_usize)));
     /// assert_eq!(s.eytzinger_interpolative_search(&5),  (Some(2_usize), Some(6_usize)));
@@ -497,7 +497,7 @@ pub trait SliceExt<T> {
     /// # Examples
     ///
     /// ```rust
-    /// use eytzinger::SliceExt;
+    /// use eytzinger_interpolation::SliceExt;
     /// let s = [(3, 'd'), (1, 'b'), (5, 'f'), (0, 'a'), (2, 'c'), (4, 'e'), (6, 'g')];
     /// assert_eq!(s.eytzinger_interpolative_search_by_key(&'d', |&(_, b)| b), (Some(0), Some(5)));
     /// assert_eq!(s.eytzinger_interpolative_search_by_key(&'f', |&(_, b)| b), (Some(2), Some(6)));
@@ -527,7 +527,7 @@ pub trait SliceExt<T> {
 /// # Examples
 ///
 /// ```rust
-/// use eytzinger::eytzinger_interpolative_search_by;
+/// use eytzinger_interpolation::eytzinger_interpolative_search_by;
 /// let s = [3, 1, 5, 0, 2, 4, 6];
 /// assert_eq!(eytzinger_interpolative_search_by(&s, |x| x.cmp(&3)),  (Some(0_usize), Some(5_usize)));
 /// assert_eq!(eytzinger_interpolative_search_by(&s, |x| x.cmp(&5)),  (Some(2_usize), Some(6_usize)));
@@ -583,7 +583,7 @@ where
 /// # Examples
 ///
 /// ```rust
-/// use eytzinger::eytzinger_search_by;
+/// use eytzinger_interpolation::eytzinger_search_by;
 /// let s = [3, 1, 5, 0, 2, 4, 6];
 /// assert_eq!(eytzinger_search_by(&s, |x| x.cmp(&3)), Some(0));
 /// assert_eq!(eytzinger_search_by(&s, |x| x.cmp(&5)), Some(2));

@@ -12,7 +12,7 @@
 extern crate eytzinger;
 extern crate test;
 
-use eytzinger::SliceExt;
+use eytzinger_interpolation::SliceExt;
 use test::black_box;
 use test::Bencher;
 
