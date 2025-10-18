@@ -8,7 +8,7 @@
 //! ```
 //! use eytzinger_interpolation::SliceExt;
 //! let mut data = [0, 1, 2, 3, 4, 5, 6];
-//! data.eytzingerize(&mut eytzinger::permutation::InplacePermutator);
+//! data.eytzingerize(&mut eytzinger_interpolation::permutation::InplacePermutator);
 //! assert_eq!(data, [3, 1, 5, 0, 2, 4, 6]);
 //! assert_eq!(data.eytzinger_search(&5), Some(2));
 //! assert_eq!(data.eytzinger_search_by(|x| x.cmp(&6)), Some(6));
@@ -344,7 +344,7 @@ impl Permutation for PermutationGenerator {
 ///
 /// ```rust
 /// let mut data = [0, 1, 2, 3, 4, 5, 6];
-/// eytzinger::eytzingerize(&mut data, &mut eytzinger::permutation::InplacePermutator);
+/// eytzinger_interpolation::eytzingerize(&mut data, &mut eytzinger_interpolation::permutation::InplacePermutator);
 /// assert_eq!(data, [3, 1, 5, 0, 2, 4, 6]);
 /// ```
 #[inline]
@@ -362,7 +362,7 @@ pub trait SliceExt<T> {
     /// ```rust
     /// use eytzinger_interpolation::SliceExt;
     /// let mut data = [0, 1, 2, 3, 4, 5, 6];
-    /// data.eytzingerize(&mut eytzinger::permutation::InplacePermutator);
+    /// data.eytzingerize(&mut eytzinger_interpolation::permutation::InplacePermutator);
     /// assert_eq!(data, [3, 1, 5, 0, 2, 4, 6]);
     /// ```
     fn eytzingerize<P: Permutator<T, PermutationGenerator>>(&mut self, permutator: &mut P);
@@ -515,7 +515,7 @@ pub trait SliceExt<T> {
 
 /// Binary searches this eytzinger slice with a comparator function.
 ///
-/// Called "interpolative" search because it's useful because it's useful for when you need to interpolate to a value between two values in the array.
+/// Called "interpolative" search because it's useful for when you need to interpolate to a value between two values in the array.
 ///
 /// The comparator function should implement an order consistent with the sort order
 /// of the underlying eytzinger slice, returning an order code that indicates whether
@@ -909,6 +909,117 @@ mod tests {
             data.eytzingerize(&mut InplacePermutator);
 
             data.iter().enumerate().all(|(i, v)| data.eytzinger_search(v) == Some(i))
+        }
+
+        fn interpolative_search_bounds_correct(data: Vec<i32>) -> bool {
+            let mut data = data;
+            data.sort();
+            data.dedup();
+            if data.is_empty() { return true; }
+
+            let sorted = data.clone();
+            data.eytzingerize(&mut InplacePermutator);
+
+            // Test every value in the array
+            for &target in &sorted {
+                let (lte, gt) = data.eytzinger_interpolative_search(&target);
+
+                // lte should be <= target
+                if let Some(idx) = lte {
+                    if data[idx] > target { return false; }
+                }
+
+                // gt should be > target
+                if let Some(idx) = gt {
+                    if data[idx] <= target { return false; }
+                }
+
+                // At least one should be Some
+                if lte.is_none() && gt.is_none() { return false; }
+            }
+
+            // Test values between elements
+            for window in sorted.windows(2) {
+                let between = (window[0] + window[1]) / 2;
+                if between != window[0] && between != window[1] {
+                    let (lte, gt) = data.eytzinger_interpolative_search(&between);
+
+                    if let Some(idx) = lte {
+                        if data[idx] > between { return false; }
+                    }
+
+                    if let Some(idx) = gt {
+                        if data[idx] <= between { return false; }
+                    }
+                }
+            }
+
+            true
+        }
+    }
+
+    #[test]
+    fn interpolative_search_empty() {
+        let data: &[i32] = &[];
+        assert_eq!(data.eytzinger_interpolative_search(&0), (None, None));
+    }
+
+    #[test]
+    fn interpolative_search_single() {
+        let data = [42];
+        assert_eq!(data.eytzinger_interpolative_search(&42), (Some(0), None));
+        assert_eq!(data.eytzinger_interpolative_search(&41), (None, Some(0)));
+        assert_eq!(data.eytzinger_interpolative_search(&43), (Some(0), None));
+    }
+
+    #[test]
+    fn interpolative_search_all_equal() {
+        let mut data = [5, 5, 5, 5];
+        data.eytzingerize(&mut InplacePermutator);
+        let (lte, _gt) = data.eytzinger_interpolative_search(&5);
+        // Should find at least one value equal to 5
+        assert!(lte.is_some());
+        if let Some(idx) = lte {
+            assert_eq!(data[idx], 5);
+        }
+    }
+
+    #[test]
+    fn interpolative_search_below_min() {
+        let mut data = [10, 20, 30, 40, 50];
+        data.eytzingerize(&mut InplacePermutator);
+        let (lte, gt) = data.eytzinger_interpolative_search(&5);
+        assert_eq!(lte, None);
+        assert!(gt.is_some());
+        if let Some(idx) = gt {
+            assert!(data[idx] >= 10);
+        }
+    }
+
+    #[test]
+    fn interpolative_search_above_max() {
+        let mut data = [10, 20, 30, 40, 50];
+        data.eytzingerize(&mut InplacePermutator);
+        let (lte, gt) = data.eytzinger_interpolative_search(&100);
+        assert!(lte.is_some());
+        assert_eq!(gt, None);
+        if let Some(idx) = lte {
+            assert!(data[idx] <= 50);
+        }
+    }
+
+    #[test]
+    fn interpolative_search_between_values() {
+        let mut data = [10, 20, 30, 40, 50];
+        data.eytzingerize(&mut InplacePermutator);
+        let (lte, gt) = data.eytzinger_interpolative_search(&25);
+
+        assert!(lte.is_some());
+        assert!(gt.is_some());
+
+        if let (Some(lte_idx), Some(gt_idx)) = (lte, gt) {
+            assert!(data[lte_idx] <= 25);
+            assert!(data[gt_idx] > 25);
         }
     }
 }

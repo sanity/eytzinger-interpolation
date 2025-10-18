@@ -9,7 +9,6 @@
 // except according to those terms.
 #![feature(test)]
 
-extern crate eytzinger;
 extern crate test;
 
 use eytzinger_interpolation::SliceExt;
@@ -32,7 +31,7 @@ where
         Cache::L3 => 1_000_000, // 8Mb
     };
     let mut v = (0..size).map(&mapper).collect::<Vec<_>>();
-    v.eytzingerize(&mut eytzinger::permutation::InplacePermutator);
+    v.eytzingerize(&mut eytzinger_interpolation::permutation::InplacePermutator);
     let mut r = 0usize;
     b.iter(move || {
         // LCG constants from https://en.wikipedia.org/wiki/Numerical_Recipes.
