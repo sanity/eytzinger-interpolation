@@ -300,7 +300,7 @@ impl Iterator for PermutationGenerator {
     fn next(&mut self) -> Option<usize> {
         let k2 = 1 << (self.ipk - 1);
 
-        if k2 + self.li - 1 >= self.size {
+        if k2 + self.li > self.size {
             return None;
         }
 
@@ -381,9 +381,9 @@ pub trait SliceExt<T> {
     /// assert_eq!(s.eytzinger_search(&6), Some(6));
     /// assert_eq!(s.eytzinger_search(&7), None);
     /// ```
-    fn eytzinger_search<Q: ?Sized>(&self, x: &Q) -> Option<usize>
+    fn eytzinger_search<Q>(&self, x: &Q) -> Option<usize>
     where
-        Q: Ord,
+        Q: Ord + ?Sized,
         T: Borrow<Q>;
 
     /// Binary searches this eytzinger slice with a comparator function.
@@ -427,11 +427,11 @@ pub trait SliceExt<T> {
     /// assert_eq!(s.eytzinger_search_by_key(&'g', |&(_, b)| b), Some(6));
     /// assert_eq!(s.eytzinger_search_by_key(&'x', |&(_, b)| b), None);
     /// ```
-    fn eytzinger_search_by_key<'a, B, F, Q: ?Sized>(&'a self, b: &Q, f: F) -> Option<usize>
+    fn eytzinger_search_by_key<'a, B, F, Q>(&'a self, b: &Q, f: F) -> Option<usize>
     where
         B: Borrow<Q>,
         F: FnMut(&'a T) -> B,
-        Q: Ord,
+        Q: Ord + ?Sized,
         T: 'a;
 
     /// Binary searches this eytzinger slice with a comparator function for interpolation.
@@ -480,9 +480,9 @@ pub trait SliceExt<T> {
     /// assert_eq!(s.eytzinger_interpolative_search(&0),  (Some(3_usize), Some(1_usize)));
     /// assert_eq!(s.eytzinger_interpolative_search(&-1), (None, Some(3_usize)));
     /// ```
-    fn eytzinger_interpolative_search<Q: ?Sized>(&self, x: &Q) -> (Option<usize>, Option<usize>)
+    fn eytzinger_interpolative_search<Q>(&self, x: &Q) -> (Option<usize>, Option<usize>)
     where
-        Q: Ord,
+        Q: Ord + ?Sized,
         T: Borrow<Q>;
 
     /// Binary searches this sorted slice with a key extraction function for interpolation.
@@ -504,13 +504,16 @@ pub trait SliceExt<T> {
     /// assert_eq!(s.eytzinger_interpolative_search_by_key(&'g', |&(_, b)| b), (Some(6), None));
     /// assert_eq!(s.eytzinger_interpolative_search_by_key(&'x', |&(_, b)| b), (Some(6), None));
     /// ```
-    fn eytzinger_interpolative_search_by_key<'a, B, F, Q: ?Sized>(&'a self, b: &Q, f: F) -> (Option<usize>, Option<usize>)
+    fn eytzinger_interpolative_search_by_key<'a, B, F, Q>(
+        &'a self,
+        b: &Q,
+        f: F,
+    ) -> (Option<usize>, Option<usize>)
     where
         B: Borrow<Q>,
         F: FnMut(&'a T) -> B,
-        Q: Ord,
+        Q: Ord + ?Sized,
         T: 'a;
-
 }
 
 /// Binary searches this eytzinger slice with a comparator function.
@@ -658,9 +661,9 @@ impl<T> SliceExt<T> for [T] {
     }
 
     #[inline]
-    fn eytzinger_search<Q: ?Sized>(&self, x: &Q) -> Option<usize>
+    fn eytzinger_search<Q>(&self, x: &Q) -> Option<usize>
     where
-        Q: Ord,
+        Q: Ord + ?Sized,
         T: Borrow<Q>,
     {
         self.eytzinger_search_by(|e| e.borrow().cmp(x))
@@ -676,11 +679,11 @@ impl<T> SliceExt<T> for [T] {
     }
 
     #[inline]
-    fn eytzinger_search_by_key<'a, B, F, Q: ?Sized>(&'a self, b: &Q, mut f: F) -> Option<usize>
+    fn eytzinger_search_by_key<'a, B, F, Q>(&'a self, b: &Q, mut f: F) -> Option<usize>
     where
         B: Borrow<Q>,
         F: FnMut(&'a T) -> B,
-        Q: Ord,
+        Q: Ord + ?Sized,
         T: 'a,
     {
         self.eytzinger_search_by(|k| f(k).borrow().cmp(b))
@@ -696,20 +699,24 @@ impl<T> SliceExt<T> for [T] {
     }
 
     #[inline]
-    fn eytzinger_interpolative_search<Q: ?Sized>(&self, x: &Q) -> (Option<usize>, Option<usize>)
+    fn eytzinger_interpolative_search<Q>(&self, x: &Q) -> (Option<usize>, Option<usize>)
     where
-        Q: Ord,
+        Q: Ord + ?Sized,
         T: Borrow<Q>,
     {
         self.eytzinger_interpolative_search_by(|e| e.borrow().cmp(x))
     }
 
     #[inline]
-    fn eytzinger_interpolative_search_by_key<'a, B, F, Q: ?Sized>(&'a self, b: &Q, mut f: F) -> (Option<usize>, Option<usize>)
+    fn eytzinger_interpolative_search_by_key<'a, B, F, Q>(
+        &'a self,
+        b: &Q,
+        mut f: F,
+    ) -> (Option<usize>, Option<usize>)
     where
         B: Borrow<Q>,
         F: FnMut(&'a T) -> B,
-        Q: Ord,
+        Q: Ord + ?Sized,
         T: 'a,
     {
         self.eytzinger_interpolative_search_by(|k| f(k).borrow().cmp(b))
@@ -743,7 +750,7 @@ mod tests {
         }
     }
 
-    const REF_PERMUTATIONS: &[&'static [usize]] = &[
+    const REF_PERMUTATIONS: &[&[usize]] = &[
         &[],
         &[0],
         &[1, 0],
@@ -844,8 +851,9 @@ mod tests {
         }
     }
 
-    fn test_permutation<P: Default>(junk: Vec<usize>) -> bool
+    fn test_permutation<P>(junk: Vec<usize>) -> bool
     where
+        P: Default,
         for<'a> P: Permutator<usize, &'a [usize]>,
     {
         // first create a permutation from the random array
